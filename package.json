@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "ts-node src/index.ts",
+    "start": "node src/index.js",
     "start:dev": "nodemon"
   },
   "repository": {
@@ -27,9 +27,6 @@
     "scratch-vm": "^0.2.0-prerelease.20200527195112"
   },
   "devDependencies": {
-    "@types/node": "^14.0.5",
-    "nodemon": "^2.0.4",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.3"
+    "nodemon": "^2.0.4"
   }
 }
