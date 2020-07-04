@@ -1,3 +1,5 @@
-const Assembler = require('./compiler/assembler.js');
+const Parser = require('./compiler/parser.js');
 
-new Assembler().assemble();
+let parser = new Parser();
+parser.parse("sprite MySprite { onGreenFlag() {say(\"hi\"); move(10); ifOnEdgeBounce(); } }");
+parser.assembler.assemble();
