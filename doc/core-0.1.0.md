@@ -1,7 +1,7 @@
 # Claw Core Specification
 ### Version 0.1.0
 
-# Introduction
+# 1. Introduction
 There is no doubt that Scratch has become a center of creativity and learning.
 
 As a programming language, Scratch is designed to be simple to allow people of all ages to learn conceptual programming with few prerequisites.
@@ -26,21 +26,24 @@ Finally, Scratch does not present a builtin error (exception) handling framework
 These above features are present in many modern programming languages, but do not (and likely never will) exist in Scratch, due to their complex nature.
 Yet, these features would be highly benefical to those who seek to build complexity from the simplicity of Scratch.
 
-Claw aims to aid the creation of complex Scratch projects, by providing a high-level langauge that transpiles/compiles cleanly to Scratch.
-It implements many of the missing features that do not exist in Scratch, as well as a standard API that should be familiar to most programmers.
+Claw aims to aid the creation of complex Scratch projects, by providing a high-level object-orientated language that transpiles/compiles cleanly to Scratch.
+It is an object-orientated, sprite-based, strictly-typed language, and implements many of the missing features that do not exist in Scratch, as well as an expanded standard API based off of ECMAScript.
 
 <hr>
 <sup>[1]</sup> The Scratch VM does actually allow the creation of variables at runtime, specifically if a program attempts to read/write to a variable that does not exist. However, this can only be observed by manually modifying the AST of a project to invoke this behavior, and after creation the variable sticks around.
 
-# The Sprite
+## 1.1 Program Structure and Hello World
 Scratch is a sprite-orientated programming langauge, and all code must belong in a sprite (the Stage is also a sprite).
 Claw follows this paradigm: each source file consists of "sprite" definitions, similar to javascript's class definitions.
 Code is defined in functions inside each sprite.
 
-```javascript
+```clawscript
 sprite MyFirstSprite {
-    onGreenFlag() {
+    function onGreenFlag() {
         say("Hello World!", 1);
     }
 }
 ```
+
+# 2. 
+

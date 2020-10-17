@@ -32,6 +32,7 @@ class Parser {
     }
     
     _handleStatement(statementNode) {
+        console.log(statementNode);
         if(statementNode.type === "ExpressionStatement") {
             let expression = statementNode.expression;
             if(expression.type === "CallExpression") {
