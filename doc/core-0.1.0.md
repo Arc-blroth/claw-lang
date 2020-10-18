@@ -44,6 +44,3 @@ sprite MyFirstSprite {
     }
 }
 ```
-
-# 2. 
-
