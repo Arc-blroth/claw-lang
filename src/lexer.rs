@@ -10,10 +10,11 @@ use strum_macros::EnumString;
 
 use crate::lexer::Token::BlockToken;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Token {
     KeywordToken(Keyword),
-    BlockToken(BlockDelimiter)
+    BlockToken(BlockDelimiter),
+    NameToken(String)
 }
 
 impl Display for Token {
@@ -25,17 +26,20 @@ impl Display for Token {
             Token::BlockToken(delimiter) => {
                 write!(f, "BlockToken: {}", delimiter.to_string())
             }
+            Token::NameToken(name) => {
+                write!(f, "NameToken: {}", name)
+            }
         }
     }
 }
 
-#[derive(strum_macros::Display, Debug, EnumString)]
+#[derive(strum_macros::Display, Debug, Eq, PartialEq, EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum Keyword {
     Sprite
 }
 
-#[derive(strum_macros::Display, Debug, EnumString)]
+#[derive(strum_macros::Display, Debug, Eq, PartialEq, EnumString)]
 pub enum BlockDelimiter {
     #[strum(serialize="{")]
     LeftBracket,
@@ -44,8 +48,8 @@ pub enum BlockDelimiter {
 }
 
 pub struct Lexer {
-    source: String,
-    tokens: Vec<Box<Token>>
+    pub source: String,
+    pub tokens: Vec<Box<Token>>
 }
 
 impl Lexer {
@@ -89,7 +93,7 @@ impl Lexer {
                             self.tokens.push(Box::from(Token::BlockToken(delimiter)))
                         },
                         Err(_) => {
-
+                            self.tokens.push(Box::from(Token::NameToken(raw_token)))
                         }
                     }
                 }

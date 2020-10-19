@@ -4,8 +4,10 @@ use std::io::Read;
 use std::path::Path;
 
 use crate::lexer::Lexer;
+use crate::parser::parse;
 
 mod lexer;
+mod parser;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -32,6 +34,14 @@ fn main() {
         Ok(_) => {
             let mut lexer = Lexer::new(s);
             lexer.lex();
+            match parse(lexer.tokens) {
+                Ok(program) => {
+                    println!("{:?}", &program.sprites)
+                },
+                Err(error) => {
+                    eprintln!("{}", error.description)
+                }
+            }
         }
     }
 
