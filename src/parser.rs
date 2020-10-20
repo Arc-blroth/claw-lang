@@ -47,7 +47,7 @@ impl TokenUtils for Tokens {
     }
 }
 
-macro_rules! expect_token {
+macro_rules! expect_token_inner {
     ($tokens:ident, $target:expr, $error:expr) => {{
         if $tokens.is_empty() {
             let mut error_string = $error.to_owned();
@@ -66,10 +66,25 @@ macro_rules! expect_token {
                 src: Some(token.0)
             });
         }
+        token
+    }};
+}
+
+macro_rules! expect_token {
+    ($tokens:ident, $target:expr, $error:expr) => {{
+        let token = expect_token_inner!($tokens, $target, $error);
         if *token.1 != $target {
             return Err(ParseError::new($error, token.0));
         }
-        token
+    }};
+
+    ($tokens:ident, $target:path, $error:expr, $($arg:ident),*) => {{
+        let token = expect_token_inner!($tokens, $target, $error);
+        if let $target($($arg)*) = *token.1 {
+            ($($arg)*)
+        } else {
+            return Err(ParseError::new($error, token.0));
+        }
     }};
 }
 
@@ -82,13 +97,7 @@ pub fn parse(mut tokens: Tokens) -> Result<Program, ParseError> {
 
 fn parse_sprite(mut tokens: Tokens) -> Result<Sprite, ParseError> {
     expect_token!(tokens, Token::KeywordToken(Keyword::Sprite), "Expected a sprite");
-    let name;
-    let token = tokens.next();
-    if let Token::NameToken(token_name) = *token.1 {
-        name = token_name;
-    } else {
-        return Err(ParseError::new("Expected a sprite name", token.0));
-    }
+    let name = expect_token!(tokens, Token::NameToken, "Expected a sprite name", token_name);
     expect_token!(tokens, Token::BlockToken(BlockDelimiter::LeftBracket), "Expected a left bracket");
     expect_token!(tokens, Token::BlockToken(BlockDelimiter::RightBracket), "Expected a right bracket");
     Ok(Sprite {
