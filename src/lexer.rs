@@ -1,15 +1,11 @@
 use core::fmt;
 use std::fmt::{Display, Formatter};
 use std::iter::FromIterator;
-use std::rc::Rc;
 use std::str::FromStr;
 use std::string::ToString;
 
-use heck::CamelCase;
 use strum;
 use strum_macros::EnumString;
-
-use crate::lexer::Token::BlockToken;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct SrcInfo {
@@ -22,7 +18,8 @@ pub struct SrcInfo {
 pub enum Token {
     KeywordToken(Keyword),
     BlockToken(BlockDelimiter),
-    NameToken(String)
+    NameToken(String),
+    EOFToken
 }
 
 impl Display for Token {
@@ -36,6 +33,9 @@ impl Display for Token {
             }
             Token::NameToken(name) => {
                 write!(f, "NameToken: {}", name)
+            }
+            Token::EOFToken => {
+                write!(f, "EOFToken")
             }
         }
     }
@@ -117,26 +117,20 @@ impl Lexer {
                 }
             ));
         }
+        let eof_token = (SrcInfo { line, column }, Box::new(Token::EOFToken));
 
         for raw_token in raw_tokens {
             let raw_token_slice: &str = &*(raw_token.0);
 
-            match Keyword::from_str(raw_token_slice) {
-                Ok(keyword) => {
-                    self.tokens.push((raw_token.1, Box::from(Token::KeywordToken(keyword))))
-                }
-                Err(_) => {
-                    match BlockDelimiter::from_str(raw_token_slice) {
-                        Ok(delimiter) => {
-                            self.tokens.push((raw_token.1, Box::from(Token::BlockToken(delimiter))))
-                        },
-                        Err(_) => {
-                            self.tokens.push((raw_token.1, Box::from(Token::NameToken(raw_token.0))))
-                        }
-                    }
-                }
+            if let Ok(keyword) = Keyword::from_str(raw_token_slice) {
+                self.tokens.push((raw_token.1, Box::from(Token::KeywordToken(keyword))))
+            } else if let Ok(delimiter) = BlockDelimiter::from_str(raw_token_slice) {
+                self.tokens.push((raw_token.1, Box::from(Token::BlockToken(delimiter))))
+            } else {
+                self.tokens.push((raw_token.1, Box::from(Token::NameToken(raw_token.0))))
             }
         }
+        self.tokens.push(eof_token);
 
         for token in &self.tokens {
             println!("{}", token.1.to_string())

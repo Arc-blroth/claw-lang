@@ -1,6 +1,5 @@
 use core::fmt;
 use std::fmt::{Display, Formatter};
-use std::ops::Deref;
 
 use crate::lexer::{BlockDelimiter, Keyword, SrcInfo, Token, Tokens};
 
@@ -16,21 +15,25 @@ pub struct Sprite {
 
 pub struct ParseError {
     pub description: String,
-    pub src: SrcInfo
+    pub src: Option<SrcInfo>
 }
 
 impl ParseError {
     pub fn new(description: &str, src: SrcInfo) -> Self {
         Self {
             description: String::from(description),
-            src
+            src: Some(src)
         }
     }
 }
 
 impl Display for ParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{} at {}:{}", self.description, self.src.line, self.src.column)
+        if self.src.is_some() {
+            write!(f, "{} at {}:{}", self.description, self.src.as_ref().unwrap().line, self.src.as_ref().unwrap().column)
+        } else {
+            write!(f, "{}", self.description)
+        }
     }
 }
 
@@ -46,7 +49,23 @@ impl TokenUtils for Tokens {
 
 macro_rules! expect_token {
     ($tokens:ident, $target:expr, $error:expr) => {{
-        let token = $tokens.next();
+        if $tokens.is_empty() {
+            let mut error_string = $error.to_owned();
+            error_string.push_str(", but reached end of token list?");
+            return Err(ParseError {
+                description: error_string,
+                src: None
+            });
+        }
+        let token = $tokens.remove(0);
+        if let Token::EOFToken = *token.1 {
+            let mut error_string = $error.to_owned();
+            error_string.push_str(", but reached end of file");
+            return Err(ParseError {
+                description: error_string,
+                src: Some(token.0)
+            });
+        }
         if *token.1 != $target {
             return Err(ParseError::new($error, token.0));
         }
