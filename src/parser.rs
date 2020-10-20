@@ -1,6 +1,8 @@
+use core::fmt;
+use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 
-use crate::lexer::{BlockDelimiter, Keyword, Token};
+use crate::lexer::{BlockDelimiter, Keyword, SrcInfo, Token, Tokens};
 
 #[derive(Debug)]
 pub struct Program {
@@ -13,18 +15,32 @@ pub struct Sprite {
 }
 
 pub struct ParseError {
-    pub description: String
+    pub description: String,
+    pub src: SrcInfo
 }
 
-type Tokens = Vec<Box<Token>>;
+impl ParseError {
+    pub fn new(description: &str, src: SrcInfo) -> Self {
+        Self {
+            description: String::from(description),
+            src
+        }
+    }
+}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{} at {}:{}", self.description, self.src.line, self.src.column)
+    }
+}
 
 trait TokenUtils {
-    fn next(&mut self) -> Token;
+    fn next(&mut self) -> (SrcInfo, Box<Token>);
 }
 
 impl TokenUtils for Tokens {
-    fn next(&mut self) -> Token {
-        *self.remove(0)
+    fn next(&mut self) -> (SrcInfo, Box<Token>) {
+        self.remove(0)
     }
 }
 
@@ -37,23 +53,24 @@ pub fn parse(mut tokens: Tokens) -> Result<Program, ParseError> {
 
 fn parse_sprite(mut tokens: Tokens) -> Result<Sprite, ParseError> {
     let token = tokens.next();
-    if token != Token::KeywordToken(Keyword::Sprite) {
-        return Err(ParseError { description: String::from("Expected a sprite.") });
+    println!("{} {}", token.0.line, token.0.column);
+    if *token.1 != Token::KeywordToken(Keyword::Sprite) {
+        return Err(ParseError::new("Expected a sprite", token.0));
     }
-    let mut name;
+    let name;
     let token = tokens.next();
-    if let Token::NameToken(token_name) = token {
+    if let Token::NameToken(token_name) = *token.1 {
         name = token_name;
     } else {
-        return Err(ParseError { description: String::from("Expected a sprite name.") });
+        return Err(ParseError::new("Expected a sprite name", token.0));
     }
     let token = tokens.next();
-    if token != Token::BlockToken(BlockDelimiter::LeftBracket) {
-        return Err(ParseError { description: String::from("Expected a left bracket.") });
+    if *token.1 != Token::BlockToken(BlockDelimiter::LeftBracket) {
+        return Err(ParseError::new("Expected a left bracket", token.0));
     }
     let token = tokens.next();
-    if token != Token::BlockToken(BlockDelimiter::RightBracket) {
-        return Err(ParseError { description: String::from("Expected a right bracket.") });
+    if *token.1 != Token::BlockToken(BlockDelimiter::RightBracket) {
+        return Err(ParseError::new("Expected a right bracket", token.0));
     }
     Ok(Sprite {
         name

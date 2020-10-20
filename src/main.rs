@@ -39,7 +39,7 @@ fn main() {
                     println!("{:?}", &program.sprites)
                 },
                 Err(error) => {
-                    eprintln!("{}", error.description)
+                    eprintln!("{}", error)
                 }
             }
         }
