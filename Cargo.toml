@@ -8,3 +8,5 @@ edition = "2018"
 heck = "0.3.1"
 strum = "0.19"
 strum_macros = "0.19"
+serde = { version = "1.0.117", features = ["derive"] }
+serde_json = "1.0.59"
