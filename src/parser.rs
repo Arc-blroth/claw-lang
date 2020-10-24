@@ -1,11 +1,14 @@
 use core::fmt;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::ops::Deref;
 
 use crate::lexer::{BlockDelimiter, Keyword, SrcInfo, Token, Tokens};
+use crate::lexer::Token::EOFToken;
 
 #[derive(Debug)]
 pub struct Program {
-    pub sprites: Vec<Sprite>
+    pub sprites: HashMap<String, Sprite>
 }
 
 #[derive(Debug)]
@@ -89,13 +92,23 @@ macro_rules! expect_token {
 }
 
 pub fn parse(mut tokens: Tokens) -> Result<Program, ParseError> {
-    let sprite = parse_sprite(tokens)?;
+    let mut sprites: HashMap<String, Sprite> = HashMap::new();
+    loop {
+        let next = tokens.get(0);
+        if next.is_some() {
+            if let EOFToken = next.unwrap().1.deref() {
+                break;
+            }
+        }
+        let sprite = parse_sprite(&mut tokens)?;
+        sprites.insert(sprite.name.clone(), sprite);
+    }
     Ok(Program {
-        sprites: vec![sprite]
+        sprites
     })
 }
 
-fn parse_sprite(mut tokens: Tokens) -> Result<Sprite, ParseError> {
+fn parse_sprite(tokens: &mut Tokens) -> Result<Sprite, ParseError> {
     expect_token!(tokens, Token::KeywordToken(Keyword::Sprite), "Expected a sprite");
     let name = expect_token!(tokens, Token::NameToken, "Expected a sprite name", token_name);
     expect_token!(tokens, Token::BlockToken(BlockDelimiter::LeftBracket), "Expected a left bracket");

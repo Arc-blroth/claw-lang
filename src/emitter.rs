@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use serde_json::Value;
 
 use crate::parser::{Program, Sprite};
 use crate::project::{Costume, Project, ProjectMeta, Target};
 
-pub fn emit_code(program: Program) -> String {
+pub fn emit_code(mut program: Program) -> String {
     let mut out = Project {
         targets: vec![],
         meta: ProjectMeta {
@@ -14,8 +15,11 @@ pub fn emit_code(program: Program) -> String {
             agent: String::from("Claw/0.0.1")
         }
     };
-    for sprite in program.sprites {
-        out.targets.push(emit_sprite(sprite));
+    out.targets.push(emit_sprite(program.sprites.remove("Stage").unwrap_or(Sprite {
+        name: String::from("Stage")
+    })));
+    for sprite in program.sprites.drain() {
+        out.targets.push(emit_sprite(sprite.1));
     }
     serde_json::to_string_pretty(&out).unwrap()
 }
