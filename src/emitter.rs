@@ -10,13 +10,13 @@ pub fn emit_code(mut program: Program) -> String {
     let mut out = Project {
         targets: vec![],
         meta: ProjectMeta {
-            semver: String::from("3.0.0"),
-            vm: String::from("0.2.0-claw"),
-            agent: String::from("Claw/0.0.1")
+            semver: "3.0.0".to_string(),
+            vm: "0.2.0-claw".to_string(),
+            agent: "Claw/0.0.1".to_string()
         }
     };
     out.targets.push(emit_sprite(program.sprites.remove("Stage").unwrap_or(Sprite {
-        name: String::from("Stage")
+        name: "Stage".to_string()
     })));
     for sprite in program.sprites.drain() {
         out.targets.push(emit_sprite(sprite.1));
@@ -38,10 +38,10 @@ pub fn emit_sprite(sprite: Sprite) -> Target {
 
 fn default_costume() -> Costume {
     Costume {
-        asset_id: String::from("cd21514d0531fdffb22204e0ec5ed84a"),
-        name: String::from("Default Costume"),
-        md5ext: String::from("cd21514d0531fdffb22204e0ec5ed84a.svg"),
-        data_format: String::from("svg"),
+        asset_id: "cd21514d0531fdffb22204e0ec5ed84a".to_string(),
+        name: "Default Costume".to_string(),
+        md5ext: "cd21514d0531fdffb22204e0ec5ed84a.svg".to_string(),
+        data_format: "svg".to_string(),
         rotation_center_x: 240,
         rotation_center_y: 180,
     }

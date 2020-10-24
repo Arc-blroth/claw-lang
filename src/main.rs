@@ -45,12 +45,12 @@ fn main() {
                     file_name.push(".json");
                     match File::create(input_path.parent().unwrap().join("out").join(file_name.clone())) {
                         Err(why) => {
-                            eprintln!("Couldn't open output '{}': {}", file_name.into_string().unwrap_or(String::from("???")), why);
+                            eprintln!("Couldn't open output '{}': {}", file_name.into_string().unwrap_or("???".to_string()), why);
                             return
                         },
                         Ok(mut output_file) => {
                             if let Err(why) = output_file.write_all(emit_code(program).as_bytes()) {
-                                eprintln!("Couldn't write to output '{}': {}", file_name.into_string().unwrap_or(String::from("???")), why);
+                                eprintln!("Couldn't write to output '{}': {}", file_name.into_string().unwrap_or("???".to_string()), why);
                                 return
                             }
                         }

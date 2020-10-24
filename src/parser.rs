@@ -24,7 +24,7 @@ pub struct ParseError {
 impl ParseError {
     pub fn new(description: &str, src: SrcInfo) -> Self {
         Self {
-            description: String::from(description),
+            description: description.to_string(),
             src: Some(src)
         }
     }
