@@ -1,5 +1,3 @@
-#![feature(in_band_lifetimes)]
-
 use std::env;
 use std::fs::File;
 use std::io::{Read, Write};

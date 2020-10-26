@@ -91,6 +91,21 @@ macro_rules! expect_token {
     }};
 }
 
+macro_rules! peek_token {
+    ($tokens:ident, $target:expr) => {{
+        let next = $tokens.get(0);
+        if next.is_some() {
+            if $target = next.unwrap().1.deref() {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }}
+}
+
 pub fn parse(mut tokens: Tokens) -> Result<Program, ParseError> {
     let mut sprites: HashMap<String, Sprite> = HashMap::new();
     loop {
@@ -111,6 +126,9 @@ pub fn parse(mut tokens: Tokens) -> Result<Program, ParseError> {
 fn parse_sprite(tokens: &mut Tokens) -> Result<Sprite, ParseError> {
     expect_token!(tokens, Token::KeywordToken(Keyword::Sprite), "Expected a sprite");
     let name = expect_token!(tokens, Token::NameToken, "Expected a sprite name", token_name);
+    while !peek_token!(tokens, Token::BlockToken(BlockDelimiter::LeftBracket)) {
+        let number = expect_token!(tokens, Token::NumberToken, "Expected a number", number);
+    }
     expect_token!(tokens, Token::BlockToken(BlockDelimiter::LeftBracket), "Expected a left bracket");
     expect_token!(tokens, Token::BlockToken(BlockDelimiter::RightBracket), "Expected a right bracket");
     Ok(Sprite {

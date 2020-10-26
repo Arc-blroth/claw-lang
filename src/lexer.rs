@@ -4,6 +4,7 @@ use std::iter::FromIterator;
 use std::str::FromStr;
 use std::string::ToString;
 
+use regex::Regex;
 use strum;
 use strum_macros::EnumString;
 
@@ -19,6 +20,7 @@ pub enum Token {
     KeywordToken(Keyword),
     BlockToken(BlockDelimiter),
     NameToken(String),
+    NumberToken(String),
     EOFToken
 }
 
@@ -33,6 +35,9 @@ impl Display for Token {
             }
             Token::NameToken(name) => {
                 write!(f, "NameToken: {}", name)
+            }
+            Token::NumberToken(number) => {
+                write!(f, "NumberToken: {}", number)
             }
             Token::EOFToken => {
                 write!(f, "EOFToken")
@@ -119,6 +124,8 @@ impl Lexer {
         }
         let eof_token = (SrcInfo { line, column }, Box::new(Token::EOFToken));
 
+        let whole_number_regex =  Regex::new(r#"^-?[0-9]*$"#).unwrap();
+
         for raw_token in raw_tokens {
             let raw_token_slice: &str = &*(raw_token.0);
 
@@ -126,6 +133,8 @@ impl Lexer {
                 self.tokens.push((raw_token.1, Box::from(Token::KeywordToken(keyword))))
             } else if let Ok(delimiter) = BlockDelimiter::from_str(raw_token_slice) {
                 self.tokens.push((raw_token.1, Box::from(Token::BlockToken(delimiter))))
+            } else if whole_number_regex.is_match(raw_token_slice) {
+                self.tokens.push((raw_token.1, Box::from(Token::NumberToken(raw_token.0))))
             } else {
                 self.tokens.push((raw_token.1, Box::from(Token::NameToken(raw_token.0))))
             }
