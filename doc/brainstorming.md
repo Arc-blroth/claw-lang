@@ -59,3 +59,11 @@ Global variables can specify an extra modifier `cloud`:
     cloud var highscore: int;
     
 This value will be updated atomically with other running instances of this program, if the program is connected to the internet.
+
+# Functions
+
+Functions are declared with the syntax
+
+    [public|private] function name([args]) -> [return] {
+    
+    }

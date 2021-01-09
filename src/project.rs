@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::Error;
 use serde::ser::SerializeTuple;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Serialize, Deserialize)]
 pub struct Project {
@@ -47,8 +47,10 @@ pub struct Variable {
 }
 
 impl Serialize for Variable {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where
-        S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
         if self.global {
             (&self.name, &self.value, &self.global).serialize(serializer)
         } else {
@@ -58,20 +60,23 @@ impl Serialize for Variable {
 }
 
 impl<'de> Deserialize<'de> for Variable {
-    fn deserialize<D>(deserializer: D) -> Result<Variable, D::Error> where
-        D: Deserializer<'de> {
+    fn deserialize<D>(deserializer: D) -> Result<Variable, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
         Err(D::Error::custom("unimplemented"))
     }
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Sound {
-
-}
+pub struct Sound {}
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Block {
-
+    pub opcode: String,
+    pub next: Option<String>,
+    pub parent: Option<String>,
+    pub top_level: bool,
 }

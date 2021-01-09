@@ -37,7 +37,7 @@ Scratch is a sprite-orientated programming langauge, and all code must belong in
 Claw follows this paradigm: each source file consists of "sprite" definitions, similar to javascript's class definitions.
 Code is defined in functions inside each sprite.
 
-```clawscript
+```claw
 sprite MyFirstSprite {
     function onGreenFlag() {
         say("Hello World!", 1);

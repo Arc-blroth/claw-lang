@@ -12,7 +12,7 @@ use strum_macros::EnumString;
 pub struct SrcInfo {
     //filename: Rc<String>,
     pub line: u64,
-    pub column: u64
+    pub column: u64,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -21,7 +21,7 @@ pub enum Token {
     BlockToken(BlockDelimiter),
     NameToken(String),
     NumberToken(String),
-    EOFToken
+    EOFToken,
 }
 
 impl Display for Token {
@@ -49,30 +49,35 @@ impl Display for Token {
 #[derive(strum_macros::Display, Debug, Eq, PartialEq, EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum Keyword {
-    Sprite
+    // Types
+    Sprite,
+    Function,
+
+    // Modifiers
+    Public,
+    Private,
 }
 
 #[derive(strum_macros::Display, Debug, Eq, PartialEq, EnumString)]
 pub enum BlockDelimiter {
-    #[strum(serialize="{")]
+    #[strum(serialize = "{")]
     LeftBracket,
-    #[strum(serialize="}")]
-    RightBracket
+    #[strum(serialize = "}")]
+    RightBracket,
 }
 
 pub type Tokens = Vec<(SrcInfo, Box<Token>)>;
 
 pub struct Lexer {
     pub source: String,
-    pub tokens: Tokens
+    pub tokens: Tokens,
 }
 
 impl Lexer {
-
     pub fn new(source: String) -> Self {
         Self {
             source,
-            tokens: vec![]
+            tokens: vec![],
         }
     }
 
@@ -94,8 +99,8 @@ impl Lexer {
                         String::from_iter(current_token_buffer.iter()),
                         SrcInfo {
                             line: last_line,
-                            column: last_column
-                        }
+                            column: last_column,
+                        },
                     ));
                     if c == '\n' {
                         last_line = line + 1;
@@ -118,25 +123,29 @@ impl Lexer {
                 String::from_iter(current_token_buffer.iter()),
                 SrcInfo {
                     line: last_line,
-                    column: last_column
-                }
+                    column: last_column,
+                },
             ));
         }
         let eof_token = (SrcInfo { line, column }, Box::new(Token::EOFToken));
 
-        let whole_number_regex =  Regex::new(r#"^-?[0-9]*$"#).unwrap();
+        let whole_number_regex = Regex::new(r#"^-?[0-9]*$"#).unwrap();
 
         for raw_token in raw_tokens {
             let raw_token_slice: &str = &*(raw_token.0);
 
             if let Ok(keyword) = Keyword::from_str(raw_token_slice) {
-                self.tokens.push((raw_token.1, Box::from(Token::KeywordToken(keyword))))
+                self.tokens
+                    .push((raw_token.1, Box::from(Token::KeywordToken(keyword))))
             } else if let Ok(delimiter) = BlockDelimiter::from_str(raw_token_slice) {
-                self.tokens.push((raw_token.1, Box::from(Token::BlockToken(delimiter))))
+                self.tokens
+                    .push((raw_token.1, Box::from(Token::BlockToken(delimiter))))
             } else if whole_number_regex.is_match(raw_token_slice) {
-                self.tokens.push((raw_token.1, Box::from(Token::NumberToken(raw_token.0))))
+                self.tokens
+                    .push((raw_token.1, Box::from(Token::NumberToken(raw_token.0))))
             } else {
-                self.tokens.push((raw_token.1, Box::from(Token::NameToken(raw_token.0))))
+                self.tokens
+                    .push((raw_token.1, Box::from(Token::NameToken(raw_token.0))))
             }
         }
         self.tokens.push(eof_token);
@@ -144,7 +153,5 @@ impl Lexer {
         for token in &self.tokens {
             println!("{}", token.1.to_string())
         }
-
     }
-
 }
