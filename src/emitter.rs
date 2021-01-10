@@ -4,7 +4,9 @@ use std::rc::Rc;
 use serde_json::Value;
 
 use crate::parser::{Function, Program, Sprite};
-use crate::project::{Block, Costume, Project, ProjectMeta, Target};
+use crate::project::{
+    Block, Blocks, Costume, CustomBlock, Inputs, Mutation, Project, ProjectMeta, Target,
+};
 
 pub fn emit_code(mut program: Program) -> String {
     let mut out = Project {
@@ -29,38 +31,45 @@ pub fn emit_code(mut program: Program) -> String {
 }
 
 pub fn emit_sprite(sprite: Sprite) -> Target {
-    let mut blocks = HashMap::new();
-    let id: u64 = 0;
+    let mut blocks = Blocks::new();
     for f in sprite.functions {
-        blocks.insert(id.to_string(), emit_function(f));
+        emit_function(&mut blocks, f);
     }
     Target {
         is_stage: sprite.name == "Stage",
         name: sprite.name,
         current_costume: 0,
-        costumes: vec![default_costume()],
+        costumes: vec![Costume::default()],
         blocks,
         sounds: vec![],
         variables: HashMap::new(),
     }
 }
 
-pub fn emit_function(function: Function) -> Block {
-    Block {
+pub fn emit_function(blocks: &mut Blocks, function: Function) {
+    let proto = blocks.push_block(Block {
+        opcode: "procedures_prototype".to_string(),
+        next: None,
+        parent: None,
+        inputs: None,
+        mutation: Some(Mutation {
+            proccode: function.name,
+            warp: true,
+        }),
+        top_level: false,
+    });
+    let def = blocks.push_block(Block {
         opcode: "procedures_definition".to_string(),
         next: None,
         parent: None,
+        inputs: Some(Inputs {
+            custom_block: CustomBlock {
+                shadow: 1,
+                prototype: proto,
+            },
+        }),
+        mutation: None,
         top_level: true,
-    }
-}
-
-fn default_costume() -> Costume {
-    Costume {
-        asset_id: "cd21514d0531fdffb22204e0ec5ed84a".to_string(),
-        name: "Default Costume".to_string(),
-        md5ext: "cd21514d0531fdffb22204e0ec5ed84a.svg".to_string(),
-        data_format: "svg".to_string(),
-        rotation_center_x: 240,
-        rotation_center_y: 180,
-    }
+    });
+    blocks.inner.get_mut(&proto).unwrap().parent = Some(def.to_string());
 }
