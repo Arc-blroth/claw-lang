@@ -33,6 +33,7 @@ generateGrammarSource {
 }
 
 processResources {
+    // Add default project resources
     def final emptyCostumeName = 'cd21514d0531fdffb22204e0ec5ed84a.svg'
     download {
         src "https://raw.githubusercontent.com/LLK/scratch-gui/12deeed7f968f13ef2e68a6c8da9130b4a5c9758/src/lib/default-project/$emptyCostumeName"
@@ -40,6 +41,13 @@ processResources {
         overwrite false
     }
     from "$buildDir/generated/resources/$emptyCostumeName"
+
+    // Add versioning info
+    from(resources.text.fromString(project.version.toString())) {
+        rename {
+            "META-INF/claw-version"
+        }
+    }
 }
 
 java {

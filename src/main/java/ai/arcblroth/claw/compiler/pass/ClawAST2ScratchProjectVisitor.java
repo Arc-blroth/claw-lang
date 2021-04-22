@@ -1,5 +1,6 @@
 package ai.arcblroth.claw.compiler.pass;
 
+import ai.arcblroth.claw.compiler.ClawCompilationUnit;
 import ai.arcblroth.claw.compiler.ast.ClawAST;
 import ai.arcblroth.claw.compiler.ast.ClawASTVisitor;
 import ai.arcblroth.claw.compiler.ast.SpriteNode;
@@ -25,7 +26,7 @@ public class ClawAST2ScratchProjectVisitor extends ClawASTVisitor {
                 new Project.Meta(
                         "3.0.0",
                         "0.2.0-claw",
-                        "Claw/0.0.1"
+                        "Claw/" + ClawCompilationUnit.COMPILER_VERSION
                 ),
                 new ArrayListQueue<>()
         );

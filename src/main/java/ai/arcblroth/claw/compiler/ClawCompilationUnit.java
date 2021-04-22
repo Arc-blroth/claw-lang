@@ -29,9 +29,21 @@ import java.util.Objects;
  */
 public class ClawCompilationUnit implements AutoCloseable {
 
+    public static final String COMPILER_VERSION;
     private static final byte[] DEFAULT_COSTUME_ASSET;
 
     static {
+        String tempCompilerVersion;
+        try (var stream = ClawCompilationUnit.class
+                .getClassLoader()
+                .getResourceAsStream("META-INF/claw-version")
+        ) {
+            tempCompilerVersion = new String(stream.readAllBytes());
+        } catch (IOException e) {
+            tempCompilerVersion = "unknown";
+        }
+        COMPILER_VERSION = tempCompilerVersion;
+
         try (var stream = ClawCompilationUnit.class
                 .getClassLoader()
                 .getResourceAsStream(Costume.EMPTY_COSTUME.md5ext().id())
