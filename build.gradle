@@ -1,0 +1,55 @@
+plugins {
+    id 'application'
+    id 'antlr'
+    id 'maven-publish'
+    id "de.undercouch.download" version "$download_plugin_version"
+}
+
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
+
+group = 'ai.arcblroth.claw'
+archivesBaseName = 'claw-lang'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    antlr "org.antlr:antlr4:${antlr_version}"
+
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+}
+
+generateGrammarSource {
+    def final pack = 'ai.arcblroth.claw.antlr'
+    outputDirectory file("$buildDir/generated-src/antlr/main/${pack.replace('.', '/')}/")
+    arguments += ['-package', pack]
+}
+
+processResources {
+    def final emptyCostumeName = 'cd21514d0531fdffb22204e0ec5ed84a.svg'
+    download {
+        src "https://raw.githubusercontent.com/LLK/scratch-gui/12deeed7f968f13ef2e68a6c8da9130b4a5c9758/src/lib/default-project/$emptyCostumeName"
+        dest "$buildDir/generated/resources/$emptyCostumeName"
+        overwrite false
+    }
+    from "$buildDir/generated/resources/$emptyCostumeName"
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

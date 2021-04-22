@@ -1,0 +1,3 @@
+[submodule "scratch-parser"]
+	path = scratch-parser
+	url = https://github.com/LLK/scratch-parser/

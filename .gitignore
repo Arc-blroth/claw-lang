@@ -1,5 +1,10 @@
-*.log
-.gradle
-.idea
-**/build
+# Gradle
+.gradle/
+
+# IDE
+.idea/
+
+# Generated folders
+**/build/
+src/main/gen/
 test/out/
