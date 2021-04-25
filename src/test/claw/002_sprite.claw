@@ -1,5 +1,3 @@
 sprite MySprite {
-    public function stuff {
 
-    }
 }

@@ -16,7 +16,7 @@ for a rough outline of what features are planned. Expect all changes to be break
     - [ ] Sounds
     - [ ] Default Properties (rotation style, etc)
 - [ ] Code
-    - [ ] `onGreenFlag`
+    - [x] `onGreenFlag`
     - [ ] Scratch Core API (`intrinsic` functions)
         - [ ] Control Flow
         - [ ] Other Top-Level Blocks

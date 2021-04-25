@@ -21,7 +21,15 @@ spriteBodyDeclaration
     ;
 
 functionDeclaration
-    : visibility FUNCTION IDENTIFIER functionBody
+    : visibility? FUNCTION IDENTIFIER functionArgs functionBody
+    ;
+
+functionArgs
+    : LPAREN functionArgsDeclaration RPAREN
+    ;
+
+functionArgsDeclaration
+    :
     ;
 
 functionBody
