@@ -1,0 +1,33 @@
+// All intrinsics that do not require menu blocks
+sprite MySprite {
+    function onGreenFlag() {
+        moveSteps(10)
+        turnRight(15)
+        turnLeft(15)
+        goTo(0, 0)
+        glide(1, 0, 0)
+        pointInDirection(90)
+        changeX(10)
+        setX(0)
+        changeY(10)
+        setY(0)
+        ifOnEdgeBounce()
+        say("Hello!", 2)
+        say("World")
+        think("Hmm...", 2)
+        think("Claw is the best programming language")
+        nextCostume()
+        nextBackdrop()
+        changeSize(10)
+        setSize(100)
+        clearGraphicEffects()
+        hide()
+        show()
+        stopAllSounds()
+        clearSoundEffects()
+        setVolume(100)
+        wait(1.5)
+        askAndWait("What's your name?")
+        resetTimer()
+    }
+}

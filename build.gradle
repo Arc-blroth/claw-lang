@@ -37,6 +37,8 @@ generateGrammarSource {
     outputDirectory file("$buildDir/generated-src/antlr/main/${pack.replace('.', '/')}/")
     arguments += ['-package', pack]
 }
+compileJava.dependsOn tasks.getByName('generateGrammarSource')
+compileKotlin.dependsOn tasks.getByName('generateGrammarSource')
 
 processResources {
     // Add default project resources

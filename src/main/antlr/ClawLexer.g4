@@ -6,15 +6,42 @@ PUBLIC:             'public';
 SPRITE:             'sprite';
 
 // Seperators
-LBRACE:             '{';
-RBRACE:             '}';
 LPAREN:             '(';
 RPAREN:             ')';
+LBRACE:             '{';
+RBRACE:             '}';
+BACKSLASH:          '\\';
+SEMICOLON:          ';';
+QUOTE:              '"';
+COMMA:              ',';
+PERIOD:             '.';
+SLASH:              '/';
+
+NumberLiteral
+    : '-'? Digit* (Digit '.'? | '.' Digit) Digit*
+    ;
+
+fragment Digit
+    : [0-9]
+    ;
+
+StringLiteral
+    : QUOTE StringLiteralChar* QUOTE
+    ;
+
+fragment StringLiteralChar
+    : ~["\r\n]
+    | StringLiteralCharEscapeSequence
+    ;
+
+fragment StringLiteralCharEscapeSequence
+    : BACKSLASH ["\r\n]
+    ;
 
 // Misc
 IDENTIFIER:         [a-zA-Z_]? [a-zA-Z$_]+;
 
 // Whitespace
-NEWLINE:            '\r'? '\n' -> skip;
+NL:            '\r'? '\n';
 WS:                 [ \t]+ -> skip;
-COMMENT:            '//'.*? NEWLINE;
+COMMENT:            '//'.*? NL -> skip;

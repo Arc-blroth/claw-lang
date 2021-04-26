@@ -4,10 +4,14 @@ import ai.arcblroth.claw.compiler.ClawCompilationUnit
 import ai.arcblroth.claw.compiler.ClawIntrinstics
 import ai.arcblroth.claw.compiler.ast.ClawAST
 import ai.arcblroth.claw.compiler.ast.ClawASTVisitor
+import ai.arcblroth.claw.compiler.ast.FunctionCallNode
 import ai.arcblroth.claw.compiler.ast.FunctionNode
+import ai.arcblroth.claw.compiler.ast.NumberPrimitiveNode
 import ai.arcblroth.claw.compiler.ast.SpriteNode
 import ai.arcblroth.claw.compiler.ast.StageNode
+import ai.arcblroth.claw.compiler.ast.StringPrimitiveNode
 import ai.arcblroth.claw.scratch.BlockFactory
+import ai.arcblroth.claw.scratch.BlockWithId
 import ai.arcblroth.claw.scratch.Costume
 import ai.arcblroth.claw.scratch.Project
 import ai.arcblroth.claw.scratch.Project.Meta
@@ -24,6 +28,8 @@ class ClawAST2ScratchProjectVisitor : ClawASTVisitor() {
 
     private lateinit var out: Project
     private var lastTarget = ArrayDeque<Target>()
+    private var lastBlocks = ArrayDeque<ArrayList<BlockWithId>>()
+    private var lastBlock = ArrayDeque<BlockWithId>()
 
     override fun visitAST(ast: ClawAST) {
         out = Project(
@@ -89,10 +95,47 @@ class ClawAST2ScratchProjectVisitor : ClawASTVisitor() {
     }
 
     override fun visitFunction(functionNode: FunctionNode) {
+        lastBlocks.addLast(arrayListOf())
         if (functionNode.name == ClawIntrinstics.ON_GREEN_FLAG_NAME) {
-            lastTarget.last().blocks.pushBlock(blockFactory.onGreenFlag())
+            val block = blockFactory.onGreenFlag()
+            lastBlocks.last().add(block)
+            lastBlock.addLast(block)
         }
         super.visitFunction(functionNode)
+        lastBlock.removeLast()
+        lastBlocks.removeLast().forEach {
+            lastTarget.last().blocks.pushBlock(it)
+        }
+    }
+
+    override fun visitFunctionCall(functionCallNode: FunctionCallNode) {
+        // At this point, all function calls should be intrinsics
+        val arguments = functionCallNode.arguments
+            .map { it.arg }
+            .map {
+                when (it) {
+                    is NumberPrimitiveNode -> it.number
+                    is StringPrimitiveNode -> it.string
+                }
+            }
+            .toTypedArray()
+        appendBlock(blockFactory.buildStatementBlock(functionCallNode.functionName, *arguments))
+        super.visitFunctionCall(functionCallNode)
+    }
+
+    private fun appendBlock(block: BlockWithId) {
+        val lastLastBlock = lastBlock.last()
+        block.parent = Optional.of(lastLastBlock)
+        lastLastBlock.next = Optional.of(block)
+        lastBlocks.last().add(block)
+        lastBlock.swap(block)
+    }
+
+    private fun <E> ArrayDeque<E>.swap(element: E) {
+        synchronized(this) {
+            this.removeLast()
+            this.addLast(element)
+        }
     }
 
     fun toProject(): Project {

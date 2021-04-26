@@ -40,7 +40,7 @@ Code is defined in functions inside each sprite.
 ```claw
 sprite MyFirstSprite {
     function onGreenFlag() {
-        say("Hello World!", 1);
+        say("Hello World!", 1)
     }
 }
 ```

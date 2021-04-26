@@ -27,5 +27,15 @@ abstract class ClawASTVisitor {
         targetNode.functions.forEach { visitFunction(it) }
     }
 
-    open fun visitFunction(functionNode: FunctionNode) {}
+    open fun visitFunction(functionNode: FunctionNode) {
+        functionNode.statements.forEach { visitStatement(it) }
+    }
+
+    open fun visitStatement(statementNode: StatementNode) {
+        when (statementNode) {
+            is FunctionCallNode -> visitFunctionCall(statementNode)
+        }
+    }
+
+    open fun visitFunctionCall(functionCallNode: FunctionCallNode) {}
 }

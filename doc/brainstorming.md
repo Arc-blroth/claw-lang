@@ -35,7 +35,7 @@ scope and each must have a unique name.
 
     sprite MySprite {
         function onGreenFlag() {
-            say("Hello World!", 1);
+            say("Hello World!", 1)
         }
     }
 
@@ -50,13 +50,13 @@ Variables can have one of 3 scopes: global, class, or function.
 
 Variables are declared with the syntax 
 
-    var name: type[ = value];
+    var name: type[ = value]
     
 If value is not specified, a default 0 or empty value will be allocated.
 
 Global variables can specify an extra modifier `cloud`:
 
-    cloud var highscore: int;
+    cloud var highscore: int
     
 This value will be updated atomically with other running instances of this program, if the program is connected to the internet.
 

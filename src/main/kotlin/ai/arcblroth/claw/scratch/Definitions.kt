@@ -221,9 +221,8 @@ data class Costume(
     }
 }
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-data class Input(val shadow: Shadow, val inputs: List<InputPrimitive>) {
+data class Input(val shadow: Shadow, val input: InputPrimitive) {
     enum class Shadow {
         UNOBSCURED,
         NONE,
@@ -242,7 +241,7 @@ sealed class InputPrimitive
 
 /**
  * While this is not actually a Scratch input primitive,
- * this class exists so inheritance makes sense for [Input.inputs]
+ * this class exists so inheritance makes sense for [Input.input]
  */
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 data class BlockInputPrimitive(@JsonValue val blockId: String) : InputPrimitive()

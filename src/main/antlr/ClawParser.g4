@@ -5,27 +5,27 @@ options {
 }
 
 compilationUnit
-    : spriteDeclaration EOF
+    : (spriteDeclaration nls)* EOF
     ;
 
 spriteDeclaration
-    : SPRITE IDENTIFIER spriteBody
+    : SPRITE nls IDENTIFIER nls spriteBody
     ;
 
 spriteBody
-    : LBRACE spriteBodyDeclaration RBRACE
+    : LBRACE nls spriteBodyDeclaration nls RBRACE
     ;
 
 spriteBodyDeclaration
-    : functionDeclaration*
+    : (functionDeclaration nls)*
     ;
 
 functionDeclaration
-    : visibility? FUNCTION IDENTIFIER functionArgs functionBody
+    : visibility? nls FUNCTION nls IDENTIFIER nls functionArgs nls functionBody
     ;
 
 functionArgs
-    : LPAREN functionArgsDeclaration RPAREN
+    : LPAREN nls functionArgsDeclaration nls RPAREN
     ;
 
 functionArgsDeclaration
@@ -33,13 +33,46 @@ functionArgsDeclaration
     ;
 
 functionBody
-    : LBRACE functionBodyDeclaration RBRACE
+    : LBRACE nls functionBodyDeclaration nls RBRACE
     ;
 
 functionBodyDeclaration
-    :
+    : statements?
+    ;
+
+statements
+    : statement (stmtSep statement)* nls
+    ;
+
+statement
+    : functionCall
+    ;
+
+functionCall
+    : IDENTIFIER nls LPAREN nls functionCallArgs nls RPAREN
+    ;
+
+functionCallArgs
+    : (functionCallArg nls COMMA nls)* functionCallArg?
+    ;
+
+functionCallArg
+    : primitive
+    ;
+
+primitive
+    : NumberLiteral
+    | StringLiteral
     ;
 
 visibility
     : PUBLIC
+    ;
+
+stmtSep
+    : NL | SEMICOLON
+    ;
+
+nls
+    : NL*
     ;
