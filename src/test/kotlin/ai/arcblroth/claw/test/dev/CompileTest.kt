@@ -21,6 +21,7 @@ object CompileTest {
 
         try {
             Files.newInputStream(file).use { fis ->
+                val now = System.currentTimeMillis()
                 val sb3 = ClawCompilationUnit(fis).compile()
                 println(sb3.getProjectAsJSON(true))
                 val fileName = file.fileName.toString()
@@ -30,6 +31,7 @@ object CompileTest {
                 ZipOutputStream(Files.newOutputStream(outSB3Path)).use { outSB3 -> sb3.writeToZip(outSB3) }
                 println("------------------------------")
                 println("Wrote sb3 to " + outSB3Path.toAbsolutePath())
+                println("Compilation took ${System.currentTimeMillis() - now} ms")
             }
         } catch (e: Throwable) {
             e.printStackTrace()

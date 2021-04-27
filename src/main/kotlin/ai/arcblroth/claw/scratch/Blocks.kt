@@ -1,6 +1,7 @@
 package ai.arcblroth.claw.scratch
 
 import ai.arcblroth.claw.compiler.exceptions.NoSuchIntrinsicException
+import ai.arcblroth.claw.util.Either
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.WrongMethodTypeException
 import java.util.Optional
@@ -39,6 +40,10 @@ fun MutableMap<String, Block>.pushBlock(block: BlockWithId) {
     this[block.id] = block.toBlock()
 }
 
+typealias NumberOrBlock = Either<Number, BlockWithId>
+typealias StringOrBlock = Either<String, BlockWithId>
+typealias ColorOrBlock = Either<Color, BlockWithId>
+
 class BlockFactory {
     class BlockBuilder(val id: String) {
         private var opcode: String? = null
@@ -57,19 +62,61 @@ class BlockFactory {
 
         fun inputValue(name: String, block: BlockWithId) = addInput(name, BlockInputPrimitive(block.id))
 
-        fun numValue(name: String, num: Number) = addInput(name, NumberPrimitive(NumberPrimitive.Type.MATH, num))
+        fun numValue(name: String, num: NumberOrBlock) = addInput(
+            name,
+            when (num) {
+                is Either.Right -> BlockInputPrimitive(num.value.id)
+                is Either.Left -> NumberPrimitive(NumberPrimitive.Type.MATH, num.value)
+            }
+        )
 
-        fun positiveNumValue(name: String, num: Number) = addInput(name, NumberPrimitive(NumberPrimitive.Type.POSITIVE, num))
+        fun positiveNumValue(name: String, num: NumberOrBlock) = addInput(
+            name,
+            when (num) {
+                is Either.Right -> BlockInputPrimitive(num.value.id)
+                is Either.Left -> NumberPrimitive(NumberPrimitive.Type.POSITIVE, num.value)
+            }
+        )
 
-        fun wholeNumValue(name: String, num: Number) = addInput(name, NumberPrimitive(NumberPrimitive.Type.WHOLE, num))
+        fun wholeNumValue(name: String, num: NumberOrBlock) = addInput(
+            name,
+            when (num) {
+                is Either.Right -> BlockInputPrimitive(num.value.id)
+                is Either.Left -> NumberPrimitive(NumberPrimitive.Type.WHOLE, num.value)
+            }
+        )
 
-        fun intNumValue(name: String, num: Number) = addInput(name, NumberPrimitive(NumberPrimitive.Type.INTEGER, num))
+        fun intNumValue(name: String, num: NumberOrBlock) = addInput(
+            name,
+            when (num) {
+                is Either.Right -> BlockInputPrimitive(num.value.id)
+                is Either.Left -> NumberPrimitive(NumberPrimitive.Type.INTEGER, num.value)
+            }
+        )
 
-        fun angleNumValue(name: String, num: Number) = addInput(name, NumberPrimitive(NumberPrimitive.Type.ANGLE, num))
+        fun angleNumValue(name: String, num: NumberOrBlock) = addInput(
+            name,
+            when (num) {
+                is Either.Right -> BlockInputPrimitive(num.value.id)
+                is Either.Left -> NumberPrimitive(NumberPrimitive.Type.ANGLE, num.value)
+            }
+        )
 
-        fun colorValue(name: String, color: Color) = addInput(name, ColorPrimitive(color))
+        fun colorValue(name: String, color: ColorOrBlock) = addInput(
+            name,
+            when (color) {
+                is Either.Right -> BlockInputPrimitive(color.value.id)
+                is Either.Left -> ColorPrimitive(color.value)
+            }
+        )
 
-        fun textValue(name: String, text: String) = addInput(name, TextPrimitive(text))
+        fun textValue(name: String, text: StringOrBlock) = addInput(
+            name,
+            when (text) {
+                is Either.Right -> BlockInputPrimitive(text.value.id)
+                is Either.Left -> TextPrimitive(text.value)
+            }
+        )
 
         fun build() = BlockWithId(
             id,
@@ -92,11 +139,9 @@ class BlockFactory {
     @Target(AnnotationTarget.FUNCTION)
     annotation class StatementBlockBuilder
 
-    companion object {
-        private val STATEMENT_BUILDERS = BlockFactory::class.java.methods
-            .filter { it.isAnnotationPresent(StatementBlockBuilder::class.java) && it.returnType == BlockWithId::class.java }
-            .associate { Pair(it.name, it.parameterCount) to MethodHandles.lookup().unreflect(it) }
-    }
+    private val statementBuilders = BlockFactory::class.java.methods
+        .filter { it.isAnnotationPresent(StatementBlockBuilder::class.java) && it.returnType == BlockWithId::class.java }
+        .associate { Pair(it.name, it.parameterCount) to MethodHandles.insertArguments(MethodHandles.lookup().unreflect(it), 0, this) }
 
     // Scratch doesn't put any constraints on block ids
     // so we just use a monotonically increasing counter
@@ -113,13 +158,19 @@ class BlockFactory {
     @Throws(NoSuchIntrinsicException::class)
     fun buildStatementBlock(name: String, vararg args: Any): BlockWithId {
         try {
-            val actualArgs = ArrayList<Any>(args.size + 1)
-            actualArgs.add(this)
-            actualArgs.addAll(args)
-            return STATEMENT_BUILDERS.getOrElse(Pair(name, args.size)) {
+            val actualArgs = Array(args.size) { i ->
+                when (val arg = args[i]) {
+                    is BlockWithId -> Either.Right(arg)
+                    is Number -> Either.Left(arg)
+                    is String -> Either.Left(arg)
+                    is Color -> Either.Left(arg)
+                    else -> throw WrongMethodTypeException("Unknown statement block input type")
+                }
+            }
+            return statementBuilders.getOrElse(Pair(name, args.size)) {
                 val argsList = args.joinToString(", ", "(", ")") { it.javaClass.name }
                 throw NoSuchIntrinsicException(name + argsList)
-            }.invokeWithArguments(actualArgs) as BlockWithId
+            }.invokeWithArguments(*actualArgs) as BlockWithId
         } catch (e: WrongMethodTypeException) {
             val argsList = args.joinToString(", ", "(", ")") { it.javaClass.name }
             throw NoSuchIntrinsicException(name + argsList)
@@ -130,38 +181,38 @@ class BlockFactory {
     //                   Motion Blocks
     // ====================================================
     @StatementBlockBuilder
-    fun moveSteps(steps: Number) = block {
+    fun moveSteps(steps: NumberOrBlock) = block {
         opcode("motion_movesteps")
         numValue("STEPS", steps)
     }
 
     @StatementBlockBuilder
-    fun turnRight(degrees: Number) = block {
+    fun turnRight(degrees: NumberOrBlock) = block {
         opcode("motion_turnright")
         numValue("DEGREES", degrees)
     }
 
     @StatementBlockBuilder
-    fun turnLeft(degrees: Number) = block {
+    fun turnLeft(degrees: NumberOrBlock) = block {
         opcode("motion_turnleft")
         numValue("DEGREES", degrees)
     }
 
     @StatementBlockBuilder
-    fun pointInDirection(angle: Number) = block {
+    fun pointInDirection(angle: NumberOrBlock) = block {
         opcode("motion_pointindirection")
         angleNumValue("DIRECTION", angle)
     }
 
     @StatementBlockBuilder
-    fun goTo(x: Number, y: Number) = block {
+    fun goTo(x: NumberOrBlock, y: NumberOrBlock) = block {
         opcode("motion_gotoxy")
         numValue("X", x)
         numValue("Y", y)
     }
 
     @StatementBlockBuilder
-    fun glide(secs: Number, x: Number, y: Number) = block {
+    fun glide(secs: NumberOrBlock, x: NumberOrBlock, y: NumberOrBlock) = block {
         opcode("motion_glidesecstoxy")
         numValue("SECS", secs)
         numValue("X", x)
@@ -169,25 +220,25 @@ class BlockFactory {
     }
 
     @StatementBlockBuilder
-    fun changeX(dx: Number) = block {
+    fun changeX(dx: NumberOrBlock) = block {
         opcode("motion_changexby")
         numValue("DX", dx)
     }
 
     @StatementBlockBuilder
-    fun setX(x: Number) = block {
+    fun setX(x: NumberOrBlock) = block {
         opcode("motion_setx")
         numValue("X", x)
     }
 
     @StatementBlockBuilder
-    fun changeY(dy: Number) = block {
+    fun changeY(dy: NumberOrBlock) = block {
         opcode("motion_changeyby")
         numValue("DY", dy)
     }
 
     @StatementBlockBuilder
-    fun setY(y: Number) = block {
+    fun setY(y: NumberOrBlock) = block {
         opcode("motion_sety")
         numValue("Y", y)
     }
@@ -201,27 +252,27 @@ class BlockFactory {
     //                     Look Blocks
     // ====================================================
     @StatementBlockBuilder
-    fun say(message: String, secs: Number) = block {
+    fun say(message: StringOrBlock, secs: NumberOrBlock) = block {
         opcode("looks_sayforsecs")
         textValue("MESSAGE", message)
         numValue("SECS", secs)
     }
 
     @StatementBlockBuilder
-    fun say(message: String) = block {
+    fun say(message: StringOrBlock) = block {
         opcode("looks_say")
         textValue("MESSAGE", message)
     }
 
     @StatementBlockBuilder
-    fun think(message: String, secs: Number) = block {
+    fun think(message: StringOrBlock, secs: NumberOrBlock) = block {
         opcode("looks_thinkforsecs")
         textValue("MESSAGE", message)
         numValue("SECS", secs)
     }
 
     @StatementBlockBuilder
-    fun think(message: String) = block {
+    fun think(message: StringOrBlock) = block {
         opcode("looks_think")
         textValue("MESSAGE", message)
     }
@@ -242,13 +293,13 @@ class BlockFactory {
     }
 
     @StatementBlockBuilder
-    fun changeSize(amount: Number) = block {
+    fun changeSize(amount: NumberOrBlock) = block {
         opcode("looks_changesizeby")
         numValue("CHANGE", amount)
     }
 
     @StatementBlockBuilder
-    fun setSize(size: Number) = block {
+    fun setSize(size: NumberOrBlock) = block {
         opcode("looks_setsizeto")
         numValue("SIZE", size)
     }
@@ -277,13 +328,13 @@ class BlockFactory {
     }
 
     @StatementBlockBuilder
-    fun changeVolume(amount: Number) = block {
+    fun changeVolume(amount: NumberOrBlock) = block {
         opcode("sound_changevolumeby")
         numValue("VOLUME", amount)
     }
 
     @StatementBlockBuilder
-    fun setVolume(volume: Number) = block {
+    fun setVolume(volume: NumberOrBlock) = block {
         opcode("sound_setvolumeto")
         numValue("VOLUME", volume)
     }
@@ -300,7 +351,7 @@ class BlockFactory {
     //                   Control Blocks
     // ====================================================
     @StatementBlockBuilder
-    fun wait(secs: Number) = block {
+    fun wait(secs: NumberOrBlock) = block {
         opcode("control_wait")
         numValue("DURATION", secs)
     }
@@ -309,7 +360,7 @@ class BlockFactory {
     //                   Sensing Blocks
     // ====================================================
     @StatementBlockBuilder
-    fun askAndWait(question: String) = block {
+    fun askAndWait(question: StringOrBlock) = block {
         opcode("sensing_askandwait")
         textValue("QUESTION", question)
     }
