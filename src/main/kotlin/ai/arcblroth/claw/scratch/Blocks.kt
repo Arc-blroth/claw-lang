@@ -314,6 +314,12 @@ class BlockFactory {
         opcode("looks_nextbackdrop")
     }
 
+    // TODO: tag this block with the undefined() comment
+    @StatementBlockBuilder
+    fun undefined() = block {
+        opcode("looks_hideallsprites")
+    }
+
     // ====================================================
     //                    Sound Blocks
     // ====================================================

@@ -29,5 +29,6 @@ sprite MySprite {
         wait(1.5)
         askAndWait("What's your name?")
         resetTimer()
+        undefined()
     }
 }

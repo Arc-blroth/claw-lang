@@ -7,7 +7,7 @@ import ai.arcblroth.claw.compiler.exceptions.CompilerException
 import ai.arcblroth.claw.compiler.exceptions.ParsingErrorException
 import ai.arcblroth.claw.compiler.pass.ClawAST2ScratchProjectVisitor
 import ai.arcblroth.claw.compiler.pass.CompilerPass
-import ai.arcblroth.claw.compiler.pass.NormalizePass
+import ai.arcblroth.claw.compiler.pass.NormalizationPass
 import ai.arcblroth.claw.scratch.Costume
 import ai.arcblroth.claw.scratch.MD5Ext
 import ai.arcblroth.claw.scratch.SB3
@@ -56,7 +56,7 @@ class ClawCompilationUnit(private val input: Reader) : AutoCloseable {
     }
 
     private fun registerPasses() {
-        registerPass(NormalizePass())
+        registerPass(NormalizationPass())
     }
 
     fun registerPass(pass: CompilerPass) {

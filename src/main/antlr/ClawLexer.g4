@@ -2,6 +2,7 @@ lexer grammar ClawLexer;
 
 // Keywords
 FUNCTION:           'function';
+INTRINSIC:          'intrinsic';
 PUBLIC:             'public';
 SPRITE:             'sprite';
 
@@ -12,6 +13,7 @@ LBRACE:             '{';
 RBRACE:             '}';
 BACKSLASH:          '\\';
 SEMICOLON:          ';';
+COLON:              ':';
 QUOTE:              '"';
 COMMA:              ',';
 PERIOD:             '.';
@@ -42,6 +44,7 @@ fragment StringLiteralCharEscapeSequence
 IDENTIFIER:         [a-zA-Z_]? [a-zA-Z$_]+;
 
 // Whitespace
-NL:            '\r'? '\n';
+NL:                 '\r'? '\n';
 WS:                 [ \t]+ -> skip;
-COMMENT:            '//'.*? NL -> skip;
+COMMENT:            '//' .*? NL -> skip;
+MULTILINE_COMMENT:  '/*' .*? '*/' -> skip;

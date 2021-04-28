@@ -5,7 +5,12 @@ options {
 }
 
 compilationUnit
-    : (spriteDeclaration nls)* EOF
+    : nls (topLevelDeclaration nls)* EOF
+    ;
+
+topLevelDeclaration
+    : spriteDeclaration
+    | functionDeclaration
     ;
 
 spriteDeclaration
@@ -21,7 +26,7 @@ spriteBodyDeclaration
     ;
 
 functionDeclaration
-    : visibility? nls FUNCTION nls IDENTIFIER nls functionArgs nls functionBody
+    : (modifier nls)* nls FUNCTION nls IDENTIFIER nls functionArgs nls functionBody
     ;
 
 functionArgs
@@ -29,7 +34,11 @@ functionArgs
     ;
 
 functionArgsDeclaration
-    :
+    : (functionArgDeclaration nls COMMA nls)* functionArgDeclaration? nls COMMA?
+    ;
+
+functionArgDeclaration
+    : IDENTIFIER nls COLON nls IDENTIFIER
     ;
 
 functionBody
@@ -53,7 +62,7 @@ functionCall
     ;
 
 functionCallArgs
-    : (functionCallArg nls COMMA nls)* functionCallArg?
+    : (functionCallArg nls COMMA nls)* functionCallArg? COMMA?
     ;
 
 functionCallArg
@@ -63,6 +72,11 @@ functionCallArg
 primitive
     : NumberLiteral
     | StringLiteral
+    ;
+
+modifier
+    : visibility
+    | INTRINSIC
     ;
 
 visibility

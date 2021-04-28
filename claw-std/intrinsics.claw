@@ -1,0 +1,102 @@
+/**
+ * # Intrinsics
+ * Claw functions that are directly compiled into Scratch blocks.
+ *
+ * Some of these functions have no effect when called in a stage.
+ * As of now, they will be compiled into Scratch blocks even if
+ * used in a stage. The compiler may choose to remove these
+ * blocks in the future.
+ *
+ * Intrinsics **must be** defined both here and in the compiler
+ * at `ai/arcblroth/claw/scratch/Blocks.kt`.
+ */
+
+// ====================================================
+//                   Motion Blocks
+// ====================================================
+
+public intrinsic function moveSteps(steps: num) {}
+
+public intrinsic function turnRight(degrees: num) {}
+
+public intrinsic function turnLeft(degrees: num) {}
+
+public intrinsic function pointInDirection(angle: num) {}
+
+public intrinsic function goTo(x: num, y: num) {}
+
+public intrinsic function glide(seconds: num, x: num, y: num) {}
+
+public intrinsic function changeX(dx: num) {}
+
+public intrinsic function setX(x: num) {}
+
+public intrinsic function changeY(dy: num) {}
+
+public intrinsic function setY(y: num) {}
+
+public intrinsic function ifOnEdgeBounce() {}
+
+// ====================================================
+//                     Look Blocks
+// ====================================================
+
+public intrinsic function say(message: string, secs: string) {}
+
+public intrinsic function say(message: string) {}
+
+public intrinsic function think(message: string, secs: string) {}
+
+public intrinsic function think(message: string) {}
+
+public intrinsic function show() {}
+
+public intrinsic function hide() {}
+
+public intrinsic function clearGraphicEffects() {}
+
+public intrinsic function changeSize(amount: num) {}
+
+public intrinsic function setSize(size: num) {}
+
+public intrinsic function nextCostume() {}
+
+public intrinsic function nextBackdrop() {}
+
+/**
+ * An "undefined" Scratch block. This block has no effect
+ * besides taking up processor time, and is intended for
+ * testing purposes.
+ *
+ * Implementation details: this function compiles into a
+ * [`looks_hideallsprites`](https://github.com/LLK/scratch-blocks/blob/develop/blocks_vertical/looks.js#L147)
+ * block. To prevent confusion, this block will always be
+ * tagged with an "undefined()" comment.
+ */
+public intrinsic function undefined() {}
+
+// ====================================================
+//                    Sound Blocks
+// ====================================================
+
+public intrinsic function stopAllSounds() {}
+
+public intrinsic function clearSoundEffects() {}
+
+public intrinsic function changeVolume(amount: num) {}
+
+public intrinsic function setVolume(volume: num) {}
+
+// ====================================================
+//                   Control Blocks
+// ====================================================
+
+public intrinsic function wait(secs: num) {}
+
+// ====================================================
+//                   Sensing Blocks
+// ====================================================
+
+public intrinsic function askAndWait(question: string) {}
+
+public intrinsic function resetTimer() {}
