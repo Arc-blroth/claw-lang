@@ -1,0 +1,25 @@
+{
+  "name": "claw-runner",
+  "author": "Arc-blroth",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.5"
+  },
+  "packageManager": "pnpm@9.12.1",
+  "dependencies": {
+    "scratch-audio": "^2.0.59",
+    "scratch-render": "^2.0.140",
+    "scratch-storage": "^4.0.40",
+    "scratch-svg-renderer": "^3.0.54",
+    "scratch-vm": "^5.0.143",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}
